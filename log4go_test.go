@@ -169,7 +169,7 @@ func TestLogger(t *testing.T) {
 	if lw, exist := sl["stdout"]; lw == nil || exist != true {
 		t.Fatalf("NewDefaultLogger produced invalid logger (DNE or nil)")
 	}
-	if sl["stdout"].Level != WARNING {
+	if sl["stdout"].Level != int64(WARNING) {
 		t.Fatalf("NewDefaultLogger produced invalid logger (incorrect level)")
 	}
 	if len(sl) != 1 {
@@ -182,7 +182,7 @@ func TestLogger(t *testing.T) {
 	if lw, exist := l["stdout"]; lw == nil || exist != true {
 		t.Fatalf("AddFilter produced invalid logger (DNE or nil)")
 	}
-	if l["stdout"].Level != DEBUG {
+	if l["stdout"].Level != int64(DEBUG) {
 		t.Fatalf("AddFilter produced invalid logger (incorrect level)")
 	}
 	if len(l) != 1 {
@@ -235,7 +235,7 @@ func TestLogOutput(t *testing.T) {
 	// Send some log messages
 	l.Log(CRITICAL, "testsrc1", fmt.Sprintf("This message is level %d", int(CRITICAL)))
 	l.Logf(ERROR, "This message is level %v", ERROR)
-	l.Logf(WARNING, "This message is level %s", WARNING)
+	l.Logf(WARNING, "This message is level %v", WARNING)
 	l.Logc(INFO, func() string { return "This message is level INFO" })
 	l.Trace("This message is level %d", int(TRACE))
 	l.Debug("This message is level %s", DEBUG)
@@ -324,17 +324,27 @@ func TestXMLConfig(t *testing.T) {
 	fmt.Fprintln(fd, "    <level>FINEST</level>")
 	fmt.Fprintln(fd, "    <property name=\"filename\">test.log</property>")
 	fmt.Fprintln(fd, "    <!--")
-	fmt.Fprintln(fd, "       %T - Time (15:04:05 MST)")
-	fmt.Fprintln(fd, "       %t - Time (15:04)")
+	tmp := "       %T - Time (15:04:05 MST)"
+	fmt.Fprintln(fd, tmp)
+	//fmt.Fprintln(fd, "       %T - Time (15:04:05 MST)")
+	tmp = "       %t - Time (15:04)"
+	fmt.Fprintln(fd, tmp)
+	//fmt.Fprintln(fd, "       %t - Time (15:04)")
 	fmt.Fprintln(fd, "       %D - Date (2006/01/02)")
-	fmt.Fprintln(fd, "       %d - Date (01/02/06)")
+	tmp = "       %d - Date (01/02/06)"
+	fmt.Fprintln(fd, tmp)
+	//fmt.Fprintln(fd, "       %d - Date (01/02/06)")
 	fmt.Fprintln(fd, "       %L - Level (FNST, FINE, DEBG, TRAC, WARN, EROR, CRIT)")
 	fmt.Fprintln(fd, "       %S - Source")
 	fmt.Fprintln(fd, "       %M - Message")
 	fmt.Fprintln(fd, "       It ignores unknown format strings (and removes them)")
-	fmt.Fprintln(fd, "       Recommended: \"[%D %T] [%L] (%S) %M\"")
+	tmp = "       Recommended: \"[%D %T] [%L] (%S) %M\""
+	fmt.Fprintln(fd, tmp)
+	//fmt.Fprintln(fd, "       Recommended: \"[%D %T] [%L] (%S) %M\"")
 	fmt.Fprintln(fd, "    -->")
-	fmt.Fprintln(fd, "    <property name=\"format\">[%D %T] [%L] (%S) %M</property>")
+	tmp = "    <property name=\"format\">[%D %T] [%L] (%S) %M</property>"
+	fmt.Fprintln(fd, tmp)
+	//fmt.Fprintln(fd, "    <property name=\"format\">[%D %T] [%L] (%S) %M</property>")
 	fmt.Fprintln(fd, "    <property name=\"rotate\">false</property> <!-- true enables log rotation, otherwise append -->")
 	fmt.Fprintln(fd, "    <property name=\"maxsize\">0M</property> <!-- \\d+[KMG]? Suffixes are in terms of 2**10 -->")
 	fmt.Fprintln(fd, "    <property name=\"maxlines\">0K</property> <!-- \\d+[KMG]? Suffixes are in terms of thousands -->")
@@ -394,13 +404,13 @@ func TestXMLConfig(t *testing.T) {
 	}
 
 	// Make sure levels are set
-	if lvl := log["stdout"].Level; lvl != DEBUG {
+	if lvl := log["stdout"].Level; lvl != int64(DEBUG) {
 		t.Errorf("XMLConfig: Expected stdout to be set to level %d, found %d", DEBUG, lvl)
 	}
-	if lvl := log["file"].Level; lvl != FINEST {
+	if lvl := log["file"].Level; lvl != int64(FINEST) {
 		t.Errorf("XMLConfig: Expected file to be set to level %d, found %d", FINEST, lvl)
 	}
-	if lvl := log["xmllog"].Level; lvl != TRACE {
+	if lvl := log["xmllog"].Level; lvl != int64(TRACE) {
 		t.Errorf("XMLConfig: Expected xmllog to be set to level %d, found %d", TRACE, lvl)
 	}
 

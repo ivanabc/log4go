@@ -131,7 +131,7 @@ func (log Logger) LoadConfiguration(filename string, contents []byte) {
 			continue
 		}
 
-		log[xmlfilt.Tag] = &Filter{lvl, filt}
+		log[xmlfilt.Tag] = &Filter{int64(lvl), filt}
 	}
 }
 

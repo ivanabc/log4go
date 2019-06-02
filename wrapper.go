@@ -27,6 +27,10 @@ func AddFilter(name string, lvl level, writer LogWriter) {
 	Global.AddFilter(name, lvl, writer)
 }
 
+func ChangeFilterLevel(name string, lvl level) {
+	Global.ChangeFilterLevel(name, lvl)
+}
+
 // Wrapper for (*Logger).Close (closes and removes all logwriters)
 func Close() {
 	Global.Close()

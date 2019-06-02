@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 )
 
 const (
@@ -40,7 +41,8 @@ func FormatLogRecord(format string, rec *LogRecord) string {
 		return ""
 	}
 
-	out := bytes.NewBuffer(make([]byte, 0, 64))
+	//out := bytes.NewBuffer(make([]byte, 0, 64))
+	var out strings.Builder
 	secs := rec.Created.UnixNano() / 1e9
 
 	cache := *formatCache
