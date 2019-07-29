@@ -50,7 +50,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"sync/atomic"
 	"time"
 )
 
@@ -124,7 +123,7 @@ type LogWriter interface {
 // A Filter represents the log level below which no log records are written to
 // the associated LogWriter.
 type Filter struct {
-	Level int64
+	Level level
 	LogWriter
 }
 
@@ -147,7 +146,7 @@ func NewLogger() Logger {
 func NewConsoleLogger(lvl level) Logger {
 	os.Stderr.WriteString("warning: use of deprecated NewConsoleLogger\n")
 	return Logger{
-		"stdout": &Filter{int64(lvl), NewConsoleLogWriter()},
+		"stdout": &Filter{lvl, NewConsoleLogWriter()},
 	}
 }
 
@@ -155,7 +154,7 @@ func NewConsoleLogger(lvl level) Logger {
 // or above lvl to standard output.
 func NewDefaultLogger(lvl level) Logger {
 	return Logger{
-		"stdout": &Filter{int64(lvl), NewConsoleLogWriter()},
+		"stdout": &Filter{lvl, NewConsoleLogWriter()},
 	}
 }
 
@@ -175,14 +174,14 @@ func (log Logger) Close() {
 // higher.  This function should not be called from multiple goroutines.
 // Returns the logger for chaining.
 func (log Logger) AddFilter(name string, lvl level, writer LogWriter) Logger {
-	log[name] = &Filter{int64(lvl), writer}
+	log[name] = &Filter{lvl, writer}
 	return log
 }
 
 func (log Logger) ChangeFilterLevel(name string, lvl level) {
 	filter, exist := log[name]
 	if exist {
-		atomic.StoreInt64(&filter.Level, int64(lvl))
+		filter.Level = lvl
 	}
 }
 
@@ -194,7 +193,7 @@ func (log Logger) intLogf(lvl level, format string, args ...interface{}) {
 	// Determine if any logging will be done
 	var flts []*Filter = make([]*Filter, 0, 1)
 	for _, filt := range log {
-		if int64(lvl) >= atomic.LoadInt64(&filt.Level) {
+		if lvl >= filt.Level {
 			flts = append(flts, filt)
 			skip = false
 		}
@@ -244,7 +243,7 @@ func (log Logger) intLogc(lvl level, closure func() string) {
 	// Determine if any logging will be done
 	var flts []*Filter = make([]*Filter, 0, 1)
 	for _, filt := range log {
-		if int64(lvl) >= atomic.LoadInt64(&filt.Level) {
+		if lvl >= filt.Level {
 			flts = append(flts, filt)
 			skip = false
 		}
@@ -287,7 +286,7 @@ func (log Logger) Log(lvl level, source, message string) {
 	// Determine if any logging will be done
 	var flts []*Filter = make([]*Filter, 0, 1)
 	for _, filt := range log {
-		if int64(lvl) >= atomic.LoadInt64(&filt.Level) {
+		if lvl >= filt.Level {
 			flts = append(flts, filt)
 			skip = false
 		}

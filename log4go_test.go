@@ -169,7 +169,7 @@ func TestLogger(t *testing.T) {
 	if lw, exist := sl["stdout"]; lw == nil || exist != true {
 		t.Fatalf("NewDefaultLogger produced invalid logger (DNE or nil)")
 	}
-	if sl["stdout"].Level != int64(WARNING) {
+	if sl["stdout"].Level != WARNING {
 		t.Fatalf("NewDefaultLogger produced invalid logger (incorrect level)")
 	}
 	if len(sl) != 1 {
@@ -182,7 +182,7 @@ func TestLogger(t *testing.T) {
 	if lw, exist := l["stdout"]; lw == nil || exist != true {
 		t.Fatalf("AddFilter produced invalid logger (DNE or nil)")
 	}
-	if l["stdout"].Level != int64(DEBUG) {
+	if l["stdout"].Level != DEBUG {
 		t.Fatalf("AddFilter produced invalid logger (incorrect level)")
 	}
 	if len(l) != 1 {
@@ -406,13 +406,13 @@ func TestXMLConfig(t *testing.T) {
 	}
 
 	// Make sure levels are set
-	if lvl := log["stdout"].Level; lvl != int64(DEBUG) {
+	if lvl := log["stdout"].Level; lvl != DEBUG {
 		t.Errorf("XMLConfig: Expected stdout to be set to level %d, found %d", DEBUG, lvl)
 	}
-	if lvl := log["file"].Level; lvl != int64(FINEST) {
+	if lvl := log["file"].Level; lvl != FINEST {
 		t.Errorf("XMLConfig: Expected file to be set to level %d, found %d", FINEST, lvl)
 	}
-	if lvl := log["xmllog"].Level; lvl != int64(TRACE) {
+	if lvl := log["xmllog"].Level; lvl != TRACE {
 		t.Errorf("XMLConfig: Expected xmllog to be set to level %d, found %d", TRACE, lvl)
 	}
 
