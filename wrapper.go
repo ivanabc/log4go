@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	Global Logger
+	Global      Logger
+	GlobalLevel = DEBUG
 )
 
 func init() {
-	Global = NewDefaultLogger(DEBUG)
+	Global = NewDefaultLogger(GlobalLevel)
 }
 
 // Wrapper for (*Logger).LoadConfiguration
