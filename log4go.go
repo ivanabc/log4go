@@ -185,6 +185,14 @@ func (log Logger) ChangeFilterLevel(name string, lvl level) {
 	}
 }
 
+func (log Logger) GetFilterLevel(name string) level {
+	filter, exist := log[name]
+	if exist {
+		return filter.Level
+	}
+	return FINEST
+}
+
 /******* Logging *******/
 // Send a formatted log message internally
 func (log Logger) intLogf(lvl level, format string, args ...interface{}) {
