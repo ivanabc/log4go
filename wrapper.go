@@ -21,6 +21,10 @@ func LoadConfiguration(filename string) {
 	Global.LoadConfiguration(filename, nil)
 }
 
+func LoadConfigurationByStruct(filename string, xc *XmlLoggerConfig) {
+	Global.LoadConfigurationByStruct(filename, xc)
+}
+
 // Wrapper for (*Logger).AddFilter
 func AddFilter(name string, lvl level, writer LogWriter) {
 	Global.AddFilter(name, lvl, writer)
