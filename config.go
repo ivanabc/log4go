@@ -11,21 +11,21 @@ import (
 	"strings"
 )
 
-type xmlProperty struct {
+type XmlProperty struct {
 	Name  string `xml:"name,attr"`
 	Value string `xml:",chardata"`
 }
 
-type xmlFilter struct {
+type XmlFilter struct {
 	Enabled  string        `xml:"enabled,attr"`
 	Tag      string        `xml:"tag"`
 	Level    string        `xml:"level"`
 	Type     string        `xml:"type"`
-	Property []xmlProperty `xml:"property"`
+	Property []XmlProperty `xml:"property"`
 }
 
-type xmlLoggerConfig struct {
-	Filter []xmlFilter `xml:"filter"`
+type XmlLoggerConfig struct {
+	Filter []XmlFilter `xml:"filter"`
 }
 
 // Load XML configuration; see examples/example.xml for documentation
@@ -49,12 +49,15 @@ func (log Logger) LoadConfiguration(filename string, contents []byte) {
 		contents = info
 	}
 
-	xc := new(xmlLoggerConfig)
+	xc := new(XmlLoggerConfig)
 	if err := xml.Unmarshal(contents, xc); err != nil {
 		fmt.Fprintf(os.Stderr, "LoadConfiguration: Error: Could not parse XML configuration in %q: %s\n", filename, err)
 		os.Exit(1)
 	}
+	log.LoadConfigurationByStruct(filename, xc)
+}
 
+func (log Logger) LoadConfigurationByStruct(filename string, xc *XmlLoggerConfig) {
 	for _, xmlfilt := range xc.Filter {
 		var filt LogWriter
 		var lvl level
@@ -135,7 +138,7 @@ func (log Logger) LoadConfiguration(filename string, contents []byte) {
 	}
 }
 
-func xmlToConsoleLogWriter(filename string, props []xmlProperty, enabled bool) (ConsoleLogWriter, bool) {
+func xmlToConsoleLogWriter(filename string, props []XmlProperty, enabled bool) (ConsoleLogWriter, bool) {
 	// Parse properties
 	for _, prop := range props {
 		switch prop.Name {
@@ -171,7 +174,7 @@ func strToNumSuffix(str string, mult int) int {
 	parsed, _ := strconv.Atoi(str)
 	return parsed * num
 }
-func xmlToFileLogWriter(filename string, props []xmlProperty, enabled bool) (*FileLogWriter, bool) {
+func xmlToFileLogWriter(filename string, props []XmlProperty, enabled bool) (*FileLogWriter, bool) {
 	file := ""
 	format := "[%D %T] [%L] (%S) %M"
 	maxlines := 0
@@ -222,7 +225,7 @@ func xmlToFileLogWriter(filename string, props []xmlProperty, enabled bool) (*Fi
 	return flw, true
 }
 
-func xmlToXMLLogWriter(filename string, props []xmlProperty, enabled bool) (*FileLogWriter, bool) {
+func xmlToXMLLogWriter(filename string, props []XmlProperty, enabled bool) (*FileLogWriter, bool) {
 	file := ""
 	maxrecords := 0
 	maxsize := 0
@@ -265,7 +268,7 @@ func xmlToXMLLogWriter(filename string, props []xmlProperty, enabled bool) (*Fil
 	return xlw, true
 }
 
-func xmlToSocketLogWriter(filename string, props []xmlProperty, enabled bool) (SocketLogWriter, bool) {
+func xmlToSocketLogWriter(filename string, props []XmlProperty, enabled bool) (SocketLogWriter, bool) {
 	endpoint := ""
 	protocol := "udp"
 
