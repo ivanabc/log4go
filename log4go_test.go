@@ -496,6 +496,7 @@ func BenchmarkFileLog(b *testing.B) {
 		sl.Log(WARNING, "here", "This is a log message")
 	}
 	b.StopTimer()
+	sl.Close()
 	os.Remove("benchlog.log")
 }
 
@@ -544,3 +545,33 @@ func BenchmarkFileUtilNotLog(b *testing.B) {
 //elog.BenchmarkFileNotLogged       2000000         821 ns/op
 //elog.BenchmarkFileUtilLog           50000       33945 ns/op
 //elog.BenchmarkFileUtilNotLog      1000000        1258 ns/op
+
+/*
+inRec:      make(chan *LogRecord)
+goos: linux
+goarch: amd64
+pkg: github.com/ivanabc/log4go
+BenchmarkFormatLogRecord-16         376178        2774 ns/op
+BenchmarkConsoleLog-16             1380049         848 ns/op
+BenchmarkConsoleNotLogged-16      20074448          60.4 ns/op
+BenchmarkConsoleUtilLog-16          496506        2393 ns/op
+BenchmarkConsoleUtilNotLog-16     17426602          67.1 ns/op
+BenchmarkFileLog-16                 491448        2863 ns/op
+BenchmarkFileNotLogged-16         19750407          60.0 ns/op
+BenchmarkFileUtilLog-16             228103        5439 ns/op
+BenchmarkFileUtilNotLog-16        18149263          66.1 ns/op
+
+inRec:      make(chan *LogRecord, LogBufferLength)
+goos: linux
+goarch: amd64
+pkg: github.com/ivanabc/log4go
+BenchmarkFormatLogRecord-16         403220        2845 ns/op
+BenchmarkConsoleLog-16             1380397         919 ns/op
+BenchmarkConsoleNotLogged-16      18221756          60.9 ns/op
+BenchmarkConsoleUtilLog-16          494970        2421 ns/op
+BenchmarkConsoleUtilNotLog-16     18295292          65.5 ns/op
+BenchmarkFileLog-16                1342813         898 ns/op
+BenchmarkFileNotLogged-16         19700433          59.2 ns/op
+BenchmarkFileUtilLog-16             412699        3111 ns/op
+BenchmarkFileUtilNotLog-16        18114156          67.6 ns/op
+*/

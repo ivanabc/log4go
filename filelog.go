@@ -70,6 +70,15 @@ func (w *FileLogWriter) Close() {
 		w.write(e.Value.(*LogRecord))
 	}
 
+	for moredata := true; moredata; {
+		select {
+		case rec := <-w.inRec:
+			w.write(rec)
+		default:
+			moredata = false
+		}
+	}
+
 	if w.file != nil {
 		fmt.Fprint(w.file, FormatLogRecord(w.trailer, &LogRecord{Created: time.Now()}))
 		w.file.Close()
@@ -124,7 +133,7 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 //   [%D %T] [%L] (%S) %M
 func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 	w := &FileLogWriter{
-		inRec:    make(chan *LogRecord),
+		inRec:    make(chan *LogRecord, LogBufferLength),
 		rec:      make(chan *LogRecord, LogBufferLength),
 		rot:      make(chan bool),
 		filename: fname,
