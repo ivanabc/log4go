@@ -134,6 +134,8 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 	w.maxsize_cursize += n
 }
 
+var FileFlushInterval time.Duration  = 100 
+
 // NewFileLogWriter creates a new LogWriter which writes to the given file and
 // has rotation enabled if rotate is true.
 //
@@ -193,7 +195,7 @@ func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 	w.wg.Add(1)
 	go func() {
 		defer w.wg.Done()
-		tick := time.NewTicker(60 * time.Millisecond)
+		tick := time.NewTicker(FileFlushInterval * time.Millisecond)
 		defer tick.Stop()
 		for {
 			select {
