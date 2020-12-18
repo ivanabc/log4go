@@ -265,7 +265,7 @@ func (w *FileLogWriter) intRotate(last bool) error {
 	if err != nil {
 		return err
 	}
-	w.newFile(fd)
+	w.newFile(fd, now)
 
 	// Set the daily open date to the current date
 	w.daily_opendate = now.Day()
@@ -281,7 +281,7 @@ func (w *FileLogWriter) intRotate(last bool) error {
 
 var MaxBufWriteSize = 4096
 
-func (w *FileLogWriter) newFile(fd *os.File) {
+func (w *FileLogWriter) newFile(fd *os.File, now time.Time) {
 	w.file = fd
 	w.bufW = bufio.NewWriterSize(w.file, MaxBufWriteSize)
 	w.bufW.WriteString(FormatLogRecord(w.header, &LogRecord{Created: now}))
