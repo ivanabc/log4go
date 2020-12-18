@@ -616,3 +616,22 @@ BenchmarkFileUtilNotLog-16        54400608          65.9 ns/op
 PASS
 ok    github.com/ivanabc/log4go 47.768s
 */
+
+/*
+with record pool
+go test -bench=. -benchtime=3s -run=none
+goos: linux
+goarch: amd64
+pkg: github.com/ivanabc/log4go
+BenchmarkFormatLogRecord-16        1288628        2761 ns/op
+BenchmarkConsoleLog-16             4241983         860 ns/op
+BenchmarkConsoleNotLogged-16      58261041          60.1 ns/op
+BenchmarkConsoleUtilLog-16         1439047        2413 ns/op
+BenchmarkConsoleUtilNotLog-16     54718004          65.3 ns/op
+BenchmarkFileLog-16                2235058        1850 ns/op
+BenchmarkFileNotLogged-16         55969791          62.0 ns/op
+BenchmarkFileUtilLog-16            1000000        3130 ns/op
+BenchmarkFileUtilNotLog-16        54477775          66.8 ns/op
+PASS
+ok    github.com/ivanabc/log4go 41.774s
+*/

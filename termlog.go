@@ -29,6 +29,7 @@ func (w ConsoleLogWriter) run(out io.Writer) {
 			timestr, timestrAt = rec.Created.Format("01/02/06 15:04:05"), at
 		}
 		fmt.Fprint(out, "[", timestr, "] [", levelStrings[rec.Level], "] [", rec.Source, "] ", rec.Message, "\n")
+		putRecordToPool(rec)
 	}
 }
 

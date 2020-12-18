@@ -38,6 +38,7 @@ func FormatLogRecord(format string, rec *LogRecord) string {
 		return "<nil>"
 	}
 	if len(format) == 0 {
+		recordPool.Put(rec)
 		return ""
 	}
 
@@ -92,6 +93,7 @@ func FormatLogRecord(format string, rec *LogRecord) string {
 		}
 	}
 	out.WriteByte('\n')
+	putRecordToPool(rec)
 
 	return out.String()
 }

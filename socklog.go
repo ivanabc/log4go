@@ -40,6 +40,7 @@ func NewSocketLogWriter(proto, hostport string) SocketLogWriter {
 		for rec := range w {
 			// Marshall into JSON
 			js, err := json.Marshal(rec)
+			putRecordToPool(rec)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "SocketLogWriter(%q): %s", hostport, err)
 				return

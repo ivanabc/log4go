@@ -50,6 +50,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -104,6 +105,18 @@ type LogRecord struct {
 	Created time.Time // The time at which the log message was created (nanoseconds)
 	Source  string    // The message source
 	Message string    // The log message
+}
+
+var recordPool = sync.Pool{
+	New: func() interface{} {
+		return new(LogRecord)
+	},
+}
+
+func putRecordToPool(rec *LogRecord) {
+	rec.Source = ""
+	rec.Message = ""
+	recordPool.Put(rec)
 }
 
 /****** LogWriter ******/
@@ -230,16 +243,15 @@ func (log Logger) intLogf(lvl level, format string, args ...interface{}) {
 		msg = fmt.Sprintf(format, args...)
 	}
 
-	// Make the log record
-	rec := &LogRecord{
-		Level:   lvl,
-		Created: time.Now(),
-		Source:  src,
-		Message: msg,
-	}
-
+	now := time.Now()
 	// Dispatch the logs
 	for _, filt := range flts {
+		rec := recordPool.Get().(*LogRecord)
+		rec.Level = lvl
+		rec.Created = now
+		rec.Source = src
+		rec.Message = msg
+
 		filt.LogWrite(rec)
 	}
 }
@@ -273,16 +285,16 @@ func (log Logger) intLogc(lvl level, closure func() string) {
 		src = fmt.Sprintf("%s:%d", file, lineno)
 	}
 
-	// Make the log record
-	rec := &LogRecord{
-		Level:   lvl,
-		Created: time.Now(),
-		Source:  src,
-		Message: closure(),
-	}
-
+	now := time.Now()
+	closureStr := closure()
 	// Dispatch the logs
 	for _, filt := range flts {
+		rec := recordPool.Get().(*LogRecord)
+		rec.Level = lvl
+		rec.Created = now
+		rec.Source = src
+		rec.Message = closureStr
+
 		filt.LogWrite(rec)
 	}
 }
@@ -303,16 +315,15 @@ func (log Logger) Log(lvl level, source, message string) {
 		return
 	}
 
-	// Make the log record
-	rec := &LogRecord{
-		Level:   lvl,
-		Created: time.Now(),
-		Source:  source,
-		Message: message,
-	}
-
+	now := time.Now()
 	// Dispatch the logs
 	for _, filt := range flts {
+		rec := recordPool.Get().(*LogRecord)
+		rec.Level = lvl
+		rec.Created = now
+		rec.Source = source
+		rec.Message = message
+
 		filt.LogWrite(rec)
 	}
 }
