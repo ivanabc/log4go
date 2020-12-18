@@ -509,6 +509,7 @@ func BenchmarkFileNotLogged(b *testing.B) {
 		sl.Log(DEBUG, "here", "This is a log message")
 	}
 	b.StopTimer()
+	sl.Close()
 	os.Remove("benchlog.log")
 }
 
@@ -521,6 +522,7 @@ func BenchmarkFileUtilLog(b *testing.B) {
 		sl.Info("%s is a log message", "This")
 	}
 	b.StopTimer()
+	sl.Close()
 	os.Remove("benchlog.log")
 }
 
@@ -533,6 +535,7 @@ func BenchmarkFileUtilNotLog(b *testing.B) {
 		sl.Debug("%s is a log message", "This")
 	}
 	b.StopTimer()
+	sl.Close()
 	os.Remove("benchlog.log")
 }
 
@@ -574,4 +577,42 @@ BenchmarkFileLog-16                1342813         898 ns/op
 BenchmarkFileNotLogged-16         19700433          59.2 ns/op
 BenchmarkFileUtilLog-16             412699        3111 ns/op
 BenchmarkFileUtilNotLog-16        18114156          67.6 ns/op
+*/
+
+/*
+go test -bench=. -benchtime=3s -run=none
+goos: linux
+goarch: amd64
+pkg: github.com/ivanabc/log4go
+BenchmarkFormatLogRecord-16        1303195        2786 ns/op
+BenchmarkConsoleLog-16             4360310         839 ns/op
+BenchmarkConsoleNotLogged-16      55439410          60.1 ns/op
+BenchmarkConsoleUtilLog-16         1465383        2418 ns/op
+BenchmarkConsoleUtilNotLog-16     53410951          65.8 ns/op
+BenchmarkFileLog-16                4085608         923 ns/op
+BenchmarkFileNotLogged-16         60602143          59.7 ns/op
+BenchmarkFileUtilLog-16            1216099        3224 ns/op
+BenchmarkFileUtilNotLog-16        54420712          68.1 ns/op
+PASS
+ok    github.com/ivanabc/log4go 70.768s
+*/
+
+/*
+with bufio
+
+go test -bench=. -benchtime=3s -run=none
+goos: linux
+goarch: amd64
+pkg: github.com/ivanabc/log4go
+BenchmarkFormatLogRecord-16        1272410        2797 ns/op
+BenchmarkConsoleLog-16             4131972         916 ns/op
+BenchmarkConsoleNotLogged-16      59075467          63.2 ns/op
+BenchmarkConsoleUtilLog-16         1422003        2675 ns/op
+BenchmarkConsoleUtilNotLog-16     47207268          89.9 ns/op
+BenchmarkFileLog-16                2449622        1439 ns/op
+BenchmarkFileNotLogged-16         58152934          62.3 ns/op
+BenchmarkFileUtilLog-16            1000000        3174 ns/op
+BenchmarkFileUtilNotLog-16        54400608          65.9 ns/op
+PASS
+ok    github.com/ivanabc/log4go 47.768s
 */

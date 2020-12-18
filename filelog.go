@@ -3,6 +3,7 @@
 package log4go
 
 import (
+	"bufio"
 	"container/list"
 	"fmt"
 	"os"
@@ -19,6 +20,7 @@ type FileLogWriter struct {
 	// The opened file
 	filename string
 	file     *os.File
+	bufW     *bufio.Writer
 
 	// The logging format
 	format string
@@ -79,8 +81,18 @@ func (w *FileLogWriter) Close() {
 		}
 	}
 
+	w.closeFile()
+}
+
+func (w *FileLogWriter) closeFile() {
 	if w.file != nil {
-		fmt.Fprint(w.file, FormatLogRecord(w.trailer, &LogRecord{Created: time.Now()}))
+		_, err := w.bufW.WriteString(FormatLogRecord(w.trailer, &LogRecord{Created: time.Now()}))
+		if err == nil {
+			err = w.bufW.Flush()
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.filename, err)
+		}
 		w.file.Close()
 	}
 }
@@ -111,7 +123,7 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 	}
 
 	// Perform the write
-	n, err := fmt.Fprint(w.file, FormatLogRecord(w.format, rec))
+	n, err := w.bufW.WriteString(FormatLogRecord(w.format, rec))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.filename, err)
 		return
@@ -181,6 +193,8 @@ func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 	w.wg.Add(1)
 	go func() {
 		defer w.wg.Done()
+		tick := time.NewTicker(60 * time.Millisecond)
+		defer tick.Stop()
 		for {
 			select {
 			case <-w.rot:
@@ -191,6 +205,10 @@ func NewFileLogWriter(fname string, rotate bool) *FileLogWriter {
 				}
 			case rec := <-w.rec:
 				w.write(rec)
+			case <-tick.C:
+				if err := w.bufW.Flush(); err != nil {
+					fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.filename, err)
+				}
 			case <-w.closeCh:
 				return
 			}
@@ -209,10 +227,7 @@ func (w *FileLogWriter) Rotate() {
 // last is true when hourRotate is set and hour change
 func (w *FileLogWriter) intRotate(last bool) error {
 	// Close any log file that may be open
-	if w.file != nil {
-		fmt.Fprint(w.file, FormatLogRecord(w.trailer, &LogRecord{Created: time.Now()}))
-		w.file.Close()
-	}
+	w.closeFile()
 
 	now := time.Now()
 	var lastTime time.Time
@@ -250,9 +265,7 @@ func (w *FileLogWriter) intRotate(last bool) error {
 	if err != nil {
 		return err
 	}
-	w.file = fd
-
-	fmt.Fprint(w.file, FormatLogRecord(w.header, &LogRecord{Created: now}))
+	w.newFile(fd)
 
 	// Set the daily open date to the current date
 	w.daily_opendate = now.Day()
@@ -264,6 +277,14 @@ func (w *FileLogWriter) intRotate(last bool) error {
 	w.maxsize_cursize = 0
 
 	return nil
+}
+
+var MaxBufWriteSize = 4096
+
+func (w *FileLogWriter) newFile(fd *os.File) {
+	w.file = fd
+	w.bufW = bufio.NewWriterSize(w.file, MaxBufWriteSize)
+	w.bufW.WriteString(FormatLogRecord(w.header, &LogRecord{Created: now}))
 }
 
 // Set the logging format (chainable).  Must be called before the first log
@@ -279,7 +300,7 @@ func (w *FileLogWriter) SetFormat(format string) *FileLogWriter {
 func (w *FileLogWriter) SetHeadFoot(head, foot string) *FileLogWriter {
 	w.header, w.trailer = head, foot
 	if w.maxlines_curlines == 0 {
-		fmt.Fprint(w.file, FormatLogRecord(w.header, &LogRecord{Created: time.Now()}))
+		w.bufW.WriteString(FormatLogRecord(w.header, &LogRecord{Created: time.Now()}))
 	}
 	return w
 }
