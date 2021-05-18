@@ -134,7 +134,7 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 	w.maxsize_cursize += n
 }
 
-var FileFlushInterval time.Duration  = 100 
+var FileFlushInterval time.Duration = 100
 
 // NewFileLogWriter creates a new LogWriter which writes to the given file and
 // has rotation enabled if rotate is true.
