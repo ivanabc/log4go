@@ -27,6 +27,15 @@ func newLogRecord(lvl level, src string, msg string) *LogRecord {
 	}
 }
 
+func TestFFunc(t *testing.T) {
+	Debugf("%d", 1)
+	Tracef("%d", 1)
+	Infof("%d", 1)
+	Warnf("%d", 1)
+	Errorf("%d", 1)
+	Criticalf("%d", 1)
+}
+
 func TestELog(t *testing.T) {
 	fmt.Printf("Testing %s\n", L4G_VERSION)
 	lr := newLogRecord(CRITICAL, "source", "message")

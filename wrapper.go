@@ -176,6 +176,13 @@ func Debug(arg0 interface{}, args ...interface{}) {
 	}
 }
 
+func Debugf(format string, args ...interface{}) {
+	const (
+		lvl = DEBUG
+	)
+	Global.intLogf(lvl, format, args...)
+}
+
 // Utility for trace log messages (see Debug() for parameter explanation)
 // Wrapper for (*Logger).Trace
 func Trace(arg0 interface{}, args ...interface{}) {
@@ -195,6 +202,13 @@ func Trace(arg0 interface{}, args ...interface{}) {
 	}
 }
 
+func Tracef(format string, args ...interface{}) {
+	const (
+		lvl = TRACE
+	)
+	Global.intLogf(lvl, format, args...)
+}
+
 // Utility for info log messages (see Debug() for parameter explanation)
 // Wrapper for (*Logger).Info
 func Info(arg0 interface{}, args ...interface{}) {
@@ -212,6 +226,13 @@ func Info(arg0 interface{}, args ...interface{}) {
 		// Build a format string so that it will be similar to Sprint
 		Global.intLogf(lvl, fmt.Sprint(arg0)+strings.Repeat(" %v", len(args)), args...)
 	}
+}
+
+func Infof(format string, args ...interface{}) {
+	const (
+		lvl = INFO
+	)
+	Global.intLogf(lvl, format, args...)
 }
 
 // Utility for warn log messages (returns an error for easy function returns) (see Debug() for parameter explanation)
@@ -235,6 +256,13 @@ func Warn(arg0 interface{}, args ...interface{}) {
 	}
 }
 
+func Warnf(format string, args ...interface{}) {
+	const (
+		lvl = WARNING
+	)
+	Global.intLogf(lvl, format, args...)
+}
+
 // Utility for error log messages (returns an error for easy function returns) (see Debug() for parameter explanation)
 // These functions will execute a closure exactly once, to build the error message for the return
 // Wrapper for (*Logger).Error
@@ -256,6 +284,13 @@ func Error(arg0 interface{}, args ...interface{}) {
 	}
 }
 
+func Errorf(format string, args ...interface{}) {
+	const (
+		lvl = ERROR
+	)
+	Global.intLogf(lvl, format, args...)
+}
+
 // Utility for critical log messages (returns an error for easy function returns) (see Debug() for parameter explanation)
 // These functions will execute a closure exactly once, to build the error message for the return
 // Wrapper for (*Logger).Critical
@@ -275,4 +310,11 @@ func Critical(arg0 interface{}, args ...interface{}) {
 		// Build a format string so that it will be similar to Sprint
 		Global.intLogf(lvl, fmt.Sprint(first)+strings.Repeat(" %v", len(args)), args...)
 	}
+}
+
+func Criticalf(format string, args ...interface{}) {
+	const (
+		lvl = CRITICAL
+	)
+	Global.intLogf(lvl, format, args...)
 }
