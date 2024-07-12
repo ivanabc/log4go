@@ -48,6 +48,9 @@ type FileLogWriter struct {
 	closeCh chan struct{}
 	msgQ    *list.List
 	wg      sync.WaitGroup
+
+	// short filename：last index slash
+	trim_path_cnt int
 }
 
 // This is the FileLogWriter's output method
@@ -97,6 +100,18 @@ func (w *FileLogWriter) closeFile() {
 	}
 }
 
+func trimmedPath(slashCnt int, s string) string {
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == '/' {
+			slashCnt--
+			if slashCnt == 0 {
+				return s[i+1:]
+			}
+		}
+	}
+	return s
+}
+
 func (w *FileLogWriter) write(rec *LogRecord) {
 	if (w.maxlines > 0 && w.maxlines_curlines >= w.maxlines) ||
 		(w.maxsize > 0 && w.maxsize_cursize >= w.maxsize) {
@@ -120,6 +135,10 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 			fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.filename, err)
 			return
 		}
+	}
+
+	if w.trim_path_cnt != 0 {
+		rec.Source = trimmedPath(w.trim_path_cnt, rec.Source)
 	}
 
 	// Perform the write
@@ -343,6 +362,11 @@ func (w *FileLogWriter) SetRotateHour(hour bool) *FileLogWriter {
 func (w *FileLogWriter) SetRotate(rotate bool) *FileLogWriter {
 	//fmt.Fprintf(os.Stderr, "FileLogWriter.SetRotate: %v\n", rotate)
 	w.rotate = rotate
+	return w
+}
+
+func (w *FileLogWriter) SetTrimPathCnt(value int) *FileLogWriter {
+	w.trim_path_cnt = value
 	return w
 }
 

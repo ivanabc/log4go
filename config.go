@@ -182,6 +182,7 @@ func xmlToFileLogWriter(filename string, props []XmlProperty, enabled bool) (*Fi
 	daily := false
 	hour := false
 	rotate := false
+	trim_path_cnt := 0
 
 	// Parse properties
 	for _, prop := range props {
@@ -200,6 +201,8 @@ func xmlToFileLogWriter(filename string, props []XmlProperty, enabled bool) (*Fi
 			hour = strings.Trim(prop.Value, " \r\n") != "false"
 		case "rotate":
 			rotate = strings.Trim(prop.Value, " \r\n") != "false"
+		case "trimpathcnt":
+			trim_path_cnt, _ = strconv.Atoi(prop.Value)
 		default:
 			fmt.Fprintf(os.Stderr, "LoadConfiguration: Warning: Unknown property \"%s\" for file filter in %s\n", prop.Name, filename)
 		}
@@ -222,6 +225,7 @@ func xmlToFileLogWriter(filename string, props []XmlProperty, enabled bool) (*Fi
 	flw.SetRotateSize(maxsize)
 	flw.SetRotateDaily(daily)
 	flw.SetRotateHour(hour)
+	flw.SetTrimPathCnt(trim_path_cnt)
 	return flw, true
 }
 
