@@ -136,7 +136,7 @@ func TestFileLogWriter(t *testing.T) {
 	}
 	defer os.Remove(testLogFile)
 
-	w.LogWrite(newLogRecord(CRITICAL, "source", "message"))
+	w.LogWrite(newLogRecord(CRITICAL, "/a/b/c/d/e/b", "message"))
 	w.Close()
 	runtime.Gosched()
 
@@ -503,6 +503,21 @@ func BenchmarkFileLog(b *testing.B) {
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		sl.Log(WARNING, "here", "This is a log message")
+	}
+	b.StopTimer()
+	sl.Close()
+	os.Remove("benchlog.log")
+}
+
+func BenchmarkFileLogTrim(b *testing.B) {
+	sl := make(Logger)
+	b.StopTimer()
+	fileLogW := NewFileLogWriter("benchlog.log", false)
+	fileLogW.trim_path_cnt = 4
+	sl.AddFilter("file", INFO, fileLogW)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		sl.Log(WARNING, "/a/b/c/d/e/f/here", "This is a log message")
 	}
 	b.StopTimer()
 	sl.Close()
