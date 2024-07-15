@@ -131,12 +131,13 @@ func TestFileLogWriter(t *testing.T) {
 	LogBufferLength = 0
 
 	w := NewFileLogWriter(testLogFile, false)
+	w.changePrefix("/home/sj/public/log4go/")
 	if w == nil {
 		t.Fatalf("Invalid return: w should not be nil")
 	}
 	defer os.Remove(testLogFile)
 
-	w.LogWrite(newLogRecord(CRITICAL, "source", "message"))
+	w.LogWrite(newLogRecord(CRITICAL, "/home/sj/public/log4go/log4go_test.go:141", "message"))
 	w.Close()
 	runtime.Gosched()
 

@@ -206,6 +206,13 @@ func (log Logger) GetFilterLevel(name string) level {
 	return FINEST
 }
 
+func (log Logger) ChangeFileLogWriterPrefix(prefix string) {
+	filter, exist := log["file"]
+	if exist {
+		filter.LogWriter.(*FileLogWriter).changePrefix(prefix)
+	}
+}
+
 /******* Logging *******/
 // Send a formatted log message internally
 func (log Logger) intLogf(lvl level, format string, args ...interface{}) {

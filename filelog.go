@@ -7,6 +7,7 @@ import (
 	"container/list"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -48,6 +49,12 @@ type FileLogWriter struct {
 	closeCh chan struct{}
 	msgQ    *list.List
 	wg      sync.WaitGroup
+
+	prefix string
+}
+
+func (w *FileLogWriter) changePrefix(prefix string) {
+	w.prefix = prefix
 }
 
 // This is the FileLogWriter's output method
@@ -123,6 +130,7 @@ func (w *FileLogWriter) write(rec *LogRecord) {
 	}
 
 	// Perform the write
+	rec.Source = strings.TrimPrefix(rec.Source, w.prefix)
 	n, err := w.bufW.WriteString(FormatLogRecord(w.format, rec))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "FileLogWriter(%q): %s\n", w.filename, err)
